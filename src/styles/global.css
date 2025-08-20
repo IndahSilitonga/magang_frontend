@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* tambahan helper */
+.menu-item {
+  @apply px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer;
+}

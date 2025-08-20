@@ -1,0 +1,1 @@
+// This file exports custom hooks that encapsulate reusable logic for managing state and side effects in functional components.

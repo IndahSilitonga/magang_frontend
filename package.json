@@ -1,0 +1,42 @@
+{
+  "name": "frontend-workspace",
+  "version": "1.0.0",
+  "description": "A frontend workspace using Astro with React integration, styled with Tailwind CSS and utilizing shadcn/ui components.",
+  "main": "src/pages/index.astro",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.6.3",
+    "@astrojs/tailwind": "^5.1.5",
+    "@radix-ui/react-slot": "1.2.3",
+    "astro": "5.12.9",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.400.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.8.1",
+    "tailwind-merge": "2.6.0",
+    "tailwindcss": "3.4.17"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.4",
+    "@types/node": "20.19.10",
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "typescript": "5.9.2"
+  },
+  "keywords": [
+    "astro",
+    "react",
+    "tailwindcss",
+    "shadcn"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
