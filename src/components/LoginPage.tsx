@@ -1,34 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User } from 'lucide-react';
 
-interface UserRole {
-  name: string;
-  roles: string[];
-  color: string;
-}
-
-const mockUsers: UserRole[] = [
-  { 
-    name: 'Ika', 
-    roles: ['Kapokja A', 'Kapokja C'], 
-    color: 'bg-blue-100 text-blue-800' 
-  },
-  { 
-    name: 'Swandi', 
-    roles: ['PIC A.1', 'PIC B.1'], 
-    color: 'bg-green-100 text-green-800' 
-  },
-  { 
-    name: 'Danu', 
-    roles: ['PIC C.1', 'Developer'], 
-    color: 'bg-purple-100 text-purple-800' 
-  },
-  { 
-    name: 'Pemilik Software', 
-    roles: ['RFC Submission'], 
-    color: 'bg-orange-100 text-orange-800' 
-  },
-];
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);

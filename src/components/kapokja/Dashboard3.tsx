@@ -1,8 +1,39 @@
-import React from "react";
-import { Card, CardHeader, CardContent } from "./ui/card";
-import { Button } from "./ui/button";
+import React, { useState } from "react";
+import { Card, CardHeader, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import NewMeeting from "./meeting";
+import { RFCActionModal } from "./modal";
 
 const DashboardKapokja: React.FC = () => {
+  const [showNewMeeting, setShowNewMeeting] = useState(false);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    action: 'approve' | 'reject' | 'request' | null;
+    rfcData?: { id: string; title: string; description: string };
+  }>({
+    isOpen: false,
+    action: null
+  });
+
+  const handleRFCAction = (action: 'approve' | 'reject' | 'request', rfcData: { id: string; title: string; description: string }) => {
+    setModalState({
+      isOpen: true,
+      action,
+      rfcData
+    });
+  };
+
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      action: null
+    });
+  };
+
+  if (showNewMeeting) {
+    return <NewMeeting onBack={() => setShowNewMeeting(false)} />;
+  }
+
   return (
     <div className="grid grid-cols-[250px_1fr] min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -21,7 +52,7 @@ const DashboardKapokja: React.FC = () => {
         <div>
           <h3 className="text-xs font-semibold uppercase text-gray-500 mb-2">RFC Technical Review</h3>
           <div className="space-y-2">
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">📝 Pending Approvals</div>
+            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">📋 Pending Approvals</div>
             <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">⚙️ Technical Assessment</div>
             <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">📊 Impact Analysis</div>
             <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">✅ Approved RFCs</div>
@@ -71,10 +102,11 @@ const DashboardKapokja: React.FC = () => {
 
         {/* RFC Technical Review */}
         <Card>
-          <CardHeader>📝 RFC Technical Review & Approval</CardHeader>
+          <CardHeader>📋 RFC Technical Review & Approval</CardHeader>
           <CardContent className="space-y-4">
+            {/* RFC 1 */}
             <div className="border border-blue-200 bg-blue-50 p-4 rounded-md">
-              <h3 className="font-semibold text-blue-800 mb-2">📑 RFC-2025-123: User Authentication Enhancement</h3>
+              <h3 className="font-semibold text-blue-800 mb-2">🔒 RFC-2025-123: User Authentication Enhancement</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div>
                   <h4 className="font-semibold mb-2">Technical Impact Assessment:</h4>
@@ -95,10 +127,68 @@ const DashboardKapokja: React.FC = () => {
                   </ul>
                 </div>
               </div>
-              <div className="flex space-x-3 mt-4">
-                <Button variant="primary">Approve with Conditions</Button>
-                <Button variant="warning">Request Modifications</Button>
-                <Button variant="danger">Reject</Button>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <Button 
+                  variant="primary" 
+                  onClick={() => handleRFCAction('approve', { 
+                    id: 'RFC-2025-123', 
+                    title: 'User Authentication Enhancement', 
+                    description: 'Security enhancement for user authentication system with OAuth 2.0 integration' 
+                  })}
+                >
+                  ✅ Approve with Conditions
+                </Button>
+                <Button 
+                  variant="warning" 
+                  onClick={() => handleRFCAction('request', { 
+                    id: 'RFC-2025-123', 
+                    title: 'User Authentication Enhancement', 
+                    description: 'Security enhancement for user authentication system with OAuth 2.0 integration' 
+                  })}
+                >
+                  ⚠️ Request Modifications
+                </Button>
+                <Button 
+                  variant="danger" 
+                  onClick={() => handleRFCAction('reject', { 
+                    id: 'RFC-2025-123', 
+                    title: 'User Authentication Enhancement', 
+                    description: 'Security enhancement for user authentication system with OAuth 2.0 integration' 
+                  })}
+                >
+                  ❌ Reject
+                </Button>
+              </div>
+            </div>
+
+
+            {/* RFC 3 - New one for variety */}
+            <div className="border border-green-200 bg-green-50 p-4 rounded-md">
+              <h3 className="font-semibold text-green-800 mb-2">🔒 RFC-2025-125: Database Migration Strategy</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h4 className="font-semibold mb-2">Technical Impact Assessment:</h4>
+                  <ul className="list-disc pl-4 text-gray-700 space-y-1">
+                    <li>Architecture Impact: High</li>
+                    <li>Data Migration: Critical</li>
+                    <li>Downtime Required: 2-4 hours</li>
+                    <li>Rollback Complexity: High</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Resource Requirements:</h4>
+                  <ul className="list-disc pl-4 text-gray-700 space-y-1">
+                    <li>Development Team: Cross-Pokja</li>
+                    <li>Timeline: 6-8 weeks</li>
+                    <li>Skills: Database, DevOps</li>
+                    <li>Testing: Comprehensive</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <Button variant="primary" onClick={() => setShowNewMeeting(true)}>
+                  📅 Schedule Meeting
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -114,6 +204,8 @@ const DashboardKapokja: React.FC = () => {
                 { name: "Rina", role: "Frontend Developer", usage: 95, status: "Conflict", color: "bg-red-500" },
                 { name: "Ardica", role: "Backend Developer", usage: 80, status: "Warning", color: "bg-amber-400" },
                 { name: "Danu", role: "PIC + Developer", usage: 65, status: "OK", color: "bg-green-500" },
+                { name: "Sarah", role: "UI/UX Designer", usage: 45, status: "Available", color: "bg-blue-500" },
+                { name: "Budi", role: "DevOps Engineer", usage: 85, status: "Warning", color: "bg-amber-400" },
               ].map((dev, i) => (
                 <div key={i} className="border p-3 rounded-md">
                   <div className="flex justify-between items-center mb-2">
@@ -134,18 +226,32 @@ const DashboardKapokja: React.FC = () => {
             <CardHeader>⚠️ RFC Impact on Current Projects</CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="bg-red-50 border border-red-200 p-3 rounded-md text-red-700">
-                <p className="font-semibold">Resource Impact: RFC-123</p>
+                <p className="font-semibold">🚨 Critical Resource Impact: RFC-123</p>
                 <p className="mt-1">Rina (Frontend) 95% allocated → Potential delay for A.1 & C.1</p>
                 <p className="mt-1 font-medium">Recommendation: Defer RFC or reallocate resources</p>
               </div>
               <div className="bg-amber-50 border border-amber-200 p-3 rounded-md text-amber-700">
-                <p className="font-semibold">Cross-Pokja Dependencies</p>
-                <p className="mt-1">RFC implementation impacts both Pokja A & C → Need coordination</p>
+                <p className="font-semibold">⚠️ Cross-Pokja Dependencies</p>
+                <p className="mt-1">RFC-125 implementation impacts both Pokja A & C → Need coordination</p>
+                <p className="mt-1 font-medium">Action: Schedule cross-pokja alignment meeting</p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 p-3 rounded-md text-blue-700">
+                <p className="font-semibold">📈 Optimization Opportunity</p>
+                <p className="mt-1">Sarah (UI/UX) only 45% allocated → Available for RFC-123 frontend work</p>
+                <p className="mt-1 font-medium">Suggestion: Reallocate Sarah to support Rina</p>
               </div>
             </CardContent>
           </Card>
         </div>
       </main>
+
+      {/* RFC Action Modal */}
+      <RFCActionModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        action={modalState.action}
+        rfcData={modalState.rfcData}
+      />
     </div>
   );
 };

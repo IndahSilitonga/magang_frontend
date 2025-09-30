@@ -1,31 +1,114 @@
-import React from "react";
-import { Card, CardHeader, CardContent } from "./ui/card";
-import { Button } from "./ui/button";
-
+import React, { useRef, useState, useEffect } from "react";
+import { Card, CardHeader, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
 
 const DashboardDirektur: React.FC = () => {
+  // Refs untuk setiap section
+  const overviewRef = useRef<HTMLDivElement | null>(null);
+  const analyticsRef = useRef<HTMLDivElement | null>(null);
+  const projectsRef = useRef<HTMLDivElement | null>(null);
+  const resourceRef = useRef<HTMLDivElement | null>(null);
+  const approvalsRef = useRef<HTMLDivElement | null>(null);
+  const meetingRef = useRef<HTMLDivElement | null>(null);
+  const rfcAnalyticsRef = useRef<HTMLDivElement | null>(null);
+  const pipelineRef = useRef<HTMLDivElement | null>(null);
+  const reportsRef = useRef<HTMLDivElement | null>(null);
+
+  const [activeMenu, setActiveMenu] = useState("overview");
+
+  // Scroll ke section
+  const handleScrollTo = (ref: React.RefObject<HTMLDivElement>, key: string) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveMenu(key);
+  };
+
+  // Update menu aktif saat scroll
+  useEffect(() => {
+    const sections = [
+      { key: "overview", ref: overviewRef },
+      { key: "analytics", ref: analyticsRef },
+      { key: "projects", ref: projectsRef },
+      { key: "resource", ref: resourceRef },
+      { key: "approvals", ref: approvalsRef },
+      { key: "meeting", ref: meetingRef },
+      { key: "rfcAnalytics", ref: rfcAnalyticsRef },
+      { key: "pipeline", ref: pipelineRef },
+      { key: "reports", ref: reportsRef },
+    ];
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY + 100;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const sec = sections[i].ref.current;
+        if (sec && scrollY >= sec.offsetTop) {
+          setActiveMenu(sections[i].key);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Helper function buat item sidebar
+  const SidebarItem = ({
+    label,
+    icon,
+    keyName,
+    refSection,
+  }: {
+    label: string;
+    icon: string;
+    keyName: string;
+    refSection: React.RefObject<HTMLDivElement>;
+  }) => (
+    <div
+      onClick={() => handleScrollTo(refSection, keyName)}
+      className={`px-4 py-2 rounded-md text-sm cursor-pointer ${
+        activeMenu === keyName
+          ? "bg-blue-600 text-white font-medium"
+          : "hover:bg-blue-50"
+      }`}
+    >
+      {icon} {label}
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-[250px_1fr] min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="bg-white border-r border-gray-200 p-5">
+      <aside className="bg-white border-r border-gray-200 p-5 sticky top-0 h-screen overflow-y-auto">
         {/* Portfolio */}
         <div className="mb-8">
           <h3 className="text-xs font-semibold uppercase text-gray-500 mb-2">
             Portfolio
           </h3>
           <div className="space-y-2">
-            <div className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium">
-              📊 Executive Overview
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📈 Portfolio Analytics
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📋 All Projects
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              👥 Resource Pool
-            </div>
+            <SidebarItem
+              label="Executive Overview"
+              icon="📊"
+              keyName="overview"
+              refSection={overviewRef}
+            />
+            <SidebarItem
+              label="Portfolio Analytics"
+              icon="📈"
+              keyName="analytics"
+              refSection={analyticsRef}
+            />
+            <SidebarItem
+              label="All Projects"
+              icon="📋"
+              keyName="projects"
+              refSection={projectsRef}
+            />
+            <SidebarItem
+              label="Resource Pool"
+              icon="👥"
+              keyName="resource"
+              refSection={resourceRef}
+            />
           </div>
         </div>
 
@@ -35,18 +118,30 @@ const DashboardDirektur: React.FC = () => {
             RFC Management
           </h3>
           <div className="space-y-2">
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📋 Pending Approvals
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📅 Meeting Schedule
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📊 RFC Analytics
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              🔄 RFC Pipeline
-            </div>
+            <SidebarItem
+              label="Pending Approvals"
+              icon="📋"
+              keyName="approvals"
+              refSection={approvalsRef}
+            />
+            <SidebarItem
+              label="Meeting Schedule"
+              icon="📅"
+              keyName="meeting"
+              refSection={meetingRef}
+            />
+            <SidebarItem
+              label="RFC Analytics"
+              icon="📊"
+              keyName="rfcAnalytics"
+              refSection={rfcAnalyticsRef}
+            />
+            <SidebarItem
+              label="RFC Pipeline"
+              icon="🔄"
+              keyName="pipeline"
+              refSection={pipelineRef}
+            />
           </div>
         </div>
 
@@ -56,15 +151,12 @@ const DashboardDirektur: React.FC = () => {
             Reports
           </h3>
           <div className="space-y-2">
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📊 Weekly Reports
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              📈 Performance
-            </div>
-            <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
-              ⚠️ Risk Assessment
-            </div>
+            <SidebarItem
+              label="Weekly Reports"
+              icon="📊"
+              keyName="reports"
+              refSection={reportsRef}
+            />
           </div>
         </div>
       </aside>
@@ -91,7 +183,9 @@ const DashboardDirektur: React.FC = () => {
           ].map((stat, i) => (
             <Card key={i}>
               <CardContent className="text-center py-6">
-                <p className="text-3xl font-bold text-gray-900">{stat.number}</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stat.number}
+                </p>
                 <p className="text-gray-500 text-sm">{stat.label}</p>
               </CardContent>
             </Card>
@@ -201,7 +295,7 @@ const DashboardDirektur: React.FC = () => {
 
           {/* Alerts */}
           <Card>
-            <CardHeader>⚠️ Critical Alerts & RFC Updates</CardHeader>
+            <CardHeader>⚠ Critical Alerts & RFC Updates</CardHeader>
             <CardContent className="space-y-3">
               {[
                 {
