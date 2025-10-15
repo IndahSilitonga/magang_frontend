@@ -4,15 +4,20 @@ import { Button } from "@/components/ui/button";
 
 interface RFC {
   id: string;
+  rfcNumber: string;
   title: string;
   status: string;
   approvedDate: string | null;
-  description: string;
+  submissionDate: string;
+  applicant: string;
+  department: string;
+  application: string;
+  category: string;
+  reason: string;
   priority: string;
   estimatedEffort: string;
   assignedTeam: string;
-  userStories: string[];
-  technicalRequirements: string[];
+  attachments: any[];
 }
 
 interface ApprovedRFCsProps {
@@ -23,72 +28,23 @@ interface ApprovedRFCsProps {
 const ApprovedRFCs: React.FC<ApprovedRFCsProps> = ({ onBack, onViewChange }) => {
   const approvedRFCs: RFC[] = [
     {
-      id: 'RFC-123',
-      title: 'User Authentication System',
+      id: 'RFC-2025-001',
+      rfcNumber: '001/RFC/PSID/XII/2025',
+      title: 'Penambahan Fitur Export Data Kepegawaian ke Format Excel',
       status: 'Ready for Sprint',
-      approvedDate: '2024-09-01',
-      description: 'Implementation of secure user authentication with 2FA support',
+      approvedDate: '2025-01-15',
+      submissionDate: '19/12/2024',
+      applicant: 'Budi Santoso',
+      department: 'kepegawaian',
+      application: 'simpeg',
+      category: 'fitur_baru',
+      reason: 'Saat ini proses pelaporan data kepegawaian bulanan memerlukan waktu 3-4 jam karena harus copy-paste manual dari sistem ke Excel. Fitur export otomatis akan menghemat waktu dan mengurangi kesalahan human error dalam pelaporan.',
       priority: 'High',
-      estimatedEffort: '6-8 weeks',
-      assignedTeam: 'Security Team + Backend Team A',
-      userStories: [
-        'As user, I want secure 2FA login',
-        'As admin, I want password policy control',
-        'As developer, I want JWT integration',
-        'As security team, I want audit logs'
-      ],
-      technicalRequirements: [
-        'JWT token implementation',
-        '2FA integration (TOTP)',
-        'Password policy enforcement',
-        'Audit logging system'
-      ]
+      estimatedEffort: '2-3 minggu',
+      assignedTeam: 'Tim Backend + Tim Frontend',
+      attachments: []
     },
-    {
-      id: 'RFC-124',
-      title: 'API Rate Limiting',
-      status: 'Approved',
-      approvedDate: '2024-08-28',
-      description: 'Implement rate limiting across all API endpoints',
-      priority: 'Medium',
-      estimatedEffort: '3-4 weeks',
-      assignedTeam: 'Backend Team B + DevOps',
-      userStories: [
-        'As API consumer, I want fair usage limits',
-        'As admin, I want configurable rate limits',
-        'As developer, I want rate limit headers',
-        'As ops, I want monitoring dashboards'
-      ],
-      technicalRequirements: [
-        'Redis-based rate limiting',
-        'Configurable limits per endpoint',
-        'Rate limit headers in responses',
-        'Monitoring and alerting'
-      ]
-    },
-    {
-      id: 'RFC-125',
-      title: 'Microservices Logging',
-      status: 'In Review',
-      approvedDate: null,
-      description: 'Centralized logging solution for microservices architecture',
-      priority: 'Medium',
-      estimatedEffort: '4-5 weeks',
-      assignedTeam: 'DevOps + Backend Teams',
-      userStories: [
-        'As developer, I want centralized logs',
-        'As ops, I want log correlation',
-        'As support, I want searchable logs',
-        'As security, I want audit trails'
-      ],
-      technicalRequirements: [
-        'ELK stack implementation',
-        'Log correlation IDs',
-        'Structured logging format',
-        'Log retention policies'
-      ]
-    }
-  ];
+  ]
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,38 +64,68 @@ const ApprovedRFCs: React.FC<ApprovedRFCsProps> = ({ onBack, onViewChange }) => 
     }
   };
 
-  return (
-    <main className="p-8 space-y-6">
-      {/* Back Button */}
-      <button 
-        onClick={onBack}
-        className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
-      >
-        ← Back to Dashboard
-      </button>
+  const getCategoryLabel = (category: string) => {
+    const categories: Record<string, string> = {
+      'fitur_baru': 'Fitur Baru',
+      'perbaikan_bug': 'Perbaikan Bug',
+      'perubahan_ui': 'Perubahan UI',
+      'integrasi': 'Integrasi'
+    };
+    return categories[category] || category;
+  };
 
-      {/* Header */}
-      <div className="flex justify-between items-center pb-5 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900">
-          ✅ Approved RFCs
-        </h1>
-        <div className="flex space-x-3">
-          <Button className="bg-blue-600 text-white hover:bg-blue-700">Filter RFCs</Button>
-          <Button className="bg-green-600 text-white hover:bg-green-700">New RFC</Button>
-        </div>
-      </div>
+  const getImpactLevelLabel = (level: string) => {
+    const levels: Record<string, string> = {
+      'tinggi': 'Tinggi - Operasional terganggu',
+      'sedang': 'Sedang - Efisiensi berkurang',
+      'rendah': 'Rendah - Nice to have'
+    };
+    return levels[level] || level;
+  };
+
+  const getDepartmentLabel = (dept: string) => {
+    const departments: Record<string, string> = {
+      'kepegawaian': 'Bagian Kepegawaian',
+      'keuangan': 'Bagian Keuangan',
+      'perencanaan': 'Bagian Perencanaan'
+    };
+    return departments[dept] || dept;
+  };
+
+  const getApplicationLabel = (app: string) => {
+    const applications: Record<string, string> = {
+      'simpeg': 'SIMPEG - Sistem Informasi Manajemen Kepegawaian',
+      'siskeu': 'SISKEU - Sistem Informasi Keuangan',
+      'simrenbang': 'SIMRENBANG - Sistem Informasi Perencanaan dan Anggaran'
+    };
+    return applications[app] || app;
+  };
+
+  return (
+    <main className="p-8 space-y-6 bg-gray-50 min-h-screen">
 
       {/* RFC Cards */}
       <div className="space-y-6">
         {approvedRFCs.map((rfc) => (
-          <Card key={rfc.id} className="border-l-4 border-l-blue-500">
-            <CardHeader>
+          <Card key={rfc.id} className="border-l-4">
+            <CardHeader className="bg-white-50">
               <div className="flex justify-between items-start">
-                <div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xs font-mono text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                      {rfc.rfcNumber}
+                    </span>
+                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                      {getCategoryLabel(rfc.category)}
+                    </span>
+                  </div>
                   <h2 className="text-lg font-semibold text-gray-900">
-                    {rfc.id}: {rfc.title}
+                    {rfc.title}
                   </h2>
-                  <p className="text-gray-600 mt-1">{rfc.description}</p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <span>Diajukan: {rfc.submissionDate}</span>
+                    <span>{getDepartmentLabel(rfc.department)}</span>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`px-3 py-1 rounded-md text-sm font-medium border ${getStatusColor(rfc.status)}`}>
@@ -151,65 +137,77 @@ const ApprovedRFCs: React.FC<ApprovedRFCsProps> = ({ onBack, onViewChange }) => 
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Basic Info */}
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">📋 Basic Information</h4>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    <li><strong>Approved:</strong> {rfc.approvedDate || 'Pending'}</li>
-                    <li><strong>Estimated Effort:</strong> {rfc.estimatedEffort}</li>
-                    <li><strong>Assigned Team:</strong> {rfc.assignedTeam}</li>
-                  </ul>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Informasi Dasar */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-gray-900 border-b pb-2">
+                    Informasi Dasar
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Aplikasi:</span>
+                      <p className="text-gray-600">{getApplicationLabel(rfc.application)}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Tanggal Disetujui:</span>
+                      <p className="text-gray-600">{rfc.approvedDate || 'Pending'}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Estimasi Pengerjaan:</span>
+                      <p className="text-gray-600">{rfc.estimatedEffort}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Tim yang Ditugaskan:</span>
+                      <p className="text-gray-600">{rfc.assignedTeam}</p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* User Stories */}
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">👥 User Stories</h4>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    {rfc.userStories.map((story, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <span className="mr-1">•</span>
-                        <span>{story}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Technical Requirements */}
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">🔧 Technical Requirements</h4>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    {rfc.technicalRequirements.map((req, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <span className="mr-1">•</span>
-                        <span>{req}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {/* Alasan & Dampak */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-gray-900 border-b pb-2">
+                    Alasan & Dampak
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Alasan Perubahan:</span>
+                      <p className="text-gray-600">{rfc.reason}</p>
+                    </div>
+                    <div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex space-x-3 mt-6 pt-4 border-t border-gray-200">
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
                 {rfc.status === 'Ready for Sprint' ? (
                   <>
                     <Button 
                       className="bg-blue-600 text-white hover:bg-blue-700"
                       onClick={() => onViewChange('sprint-creation')}
                     >
-                      Create Sprint
+                      Buat Sprint
                     </Button>
-                    <Button className="bg-gray-600 text-white hover:bg-gray-700">View Details</Button>
                   </>
                 ) : rfc.status === 'Approved' ? (
                   <>
-                    <Button className="bg-amber-600 text-white hover:bg-amber-700">Prepare for Sprint</Button>
-                    <Button className="bg-gray-600 text-white hover:bg-gray-700">View Details</Button>
+                    <Button className="bg-amber-600 text-white hover:bg-amber-700">
+                      Persiapan Sprint
+                    </Button>
+                    <Button className="bg-gray-600 text-white hover:bg-gray-700">
+                      Lihat Detail
+                    </Button>
                   </>
                 ) : (
                   <>
-                    <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>Pending Review</Button>
-                    <Button className="bg-gray-600 text-white hover:bg-gray-700">View Details</Button>
+                    <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
+                      Menunggu Review
+                    </Button>
+                    <Button className="bg-gray-600 text-white hover:bg-gray-700">
+                      Lihat Detail
+                    </Button>
                   </>
                 )}
               </div>

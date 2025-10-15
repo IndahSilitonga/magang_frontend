@@ -94,7 +94,7 @@ const DigitalSignatureModal: React.FC<DigitalSignatureModalProps> = ({
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-blue-800 text-sm">
-                  🔐 Enter your digital signature passkey to sign this document
+                Enter your digital signature passkey to sign this document
                 </p>
               </div>
               
@@ -112,7 +112,7 @@ const DigitalSignatureModal: React.FC<DigitalSignatureModalProps> = ({
                   disabled={isVerifying}
                 />
                 {error && (
-                  <p className="text-red-600 text-xs mt-1">⚠️ {error}</p>
+                  <p className="text-red-600 text-xs mt-1">{error}</p>
                 )}
               </div>
 
@@ -128,7 +128,7 @@ const DigitalSignatureModal: React.FC<DigitalSignatureModalProps> = ({
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={isVerifying || !passkey}
                 >
-                  🔏 Sign Document
+                Sign Document
                 </Button>
               </div>
             </div>
@@ -153,7 +153,7 @@ const DigitalSignatureModal: React.FC<DigitalSignatureModalProps> = ({
           {step === 3 && (
             <div className="text-center space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="text-4xl mb-2">✅</div>
+                <div className="text-4xl mb-2"></div>
                 <p className="text-green-800 font-medium">Signature Complete!</p>
                 <p className="text-green-700 text-sm mt-1">
                   Document has been digitally signed successfully

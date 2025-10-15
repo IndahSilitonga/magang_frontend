@@ -45,12 +45,11 @@ const DashboardPIC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { number: "2", label: "Active Projects" },
-          { number: "1", label: "RFC Sprints" },
-          { number: "32", label: "Total Tasks" },
-          { number: "1", label: "Resource Conflicts" },
+          { number: "1", label: "In Progress" },
+          { number: "32", label: "Complete" },
         ].map((stat, i) => (
           <Card key={i}>
             <CardContent className="text-center py-6">
@@ -63,11 +62,11 @@ const DashboardPIC = () => {
 
       {/* RFC Sprint Creation */}
       <Card>
-        <CardHeader>🚀 RFC Sprint Creation: RFC-123 User Authentication</CardHeader>
+        <CardHeader>RFC Sprint Creation: RFC-123 User Authentication</CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-green-50 border border-green-200 p-4 rounded-md">
             <h3 className="font-semibold text-green-800 mb-2">
-              ✅ RFC-123 Approved - Ready for Sprint Creation
+              RFC-123 Approved - Ready for Sprint Creation
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* User Stories */}
@@ -98,8 +97,6 @@ const DashboardPIC = () => {
               >
                 Create Sprint from RFC
               </Button>
-              <Button className="bg-amber-500 text-white hover:bg-amber-600">Customize User Stories</Button>
-              <Button className="bg-gray-700 text-white hover:bg-gray-800">Adjust Team Assignment</Button>
             </div>
           </div>
         </CardContent>
@@ -109,7 +106,7 @@ const DashboardPIC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Resource Assignment */}
         <Card>
-          <CardHeader>⚡ Quick Resource Assignment</CardHeader>
+          <CardHeader>Quick Resource Assignment</CardHeader>
           <CardContent className="space-y-4">
             <select className="w-full border rounded-md p-2 text-sm">
               <option>A.1 - Frontend Component Development</option>
@@ -130,7 +127,7 @@ const DashboardPIC = () => {
 
         {/* Active Conflicts */}
         <Card>
-          <CardHeader>⚠ Active Conflicts + RFC Impact</CardHeader>
+          <CardHeader>Active Conflicts + RFC Impact</CardHeader>
           <CardContent>
             <div className="bg-amber-50 border border-amber-200 p-4 rounded-md text-sm text-amber-800">
               <p><strong>RFC-123 Implementation Impact</strong></p>
@@ -140,7 +137,9 @@ const DashboardPIC = () => {
                 Potential timeline impact detected. <br />
                 Priority: RFC-123 is strategic initiative.
               </p>
-              <Button className="mt-3 bg-amber-500 text-white hover:bg-amber-600">Coordinate with Ika</Button>
+              <Button className="mt-3 bg-amber-500 text-white hover:bg-amber-600">
+                Coordinate with Ika
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -187,7 +186,7 @@ const DashboardPIC = () => {
             onBack={() => setCurrentView('dashboard')}
           />
         );
-         case "integration-tasks":
+      case "integration-tasks":
         return (
           <IntegrationTasks
             onBack={() => setCurrentView('dashboard')}
@@ -200,7 +199,7 @@ const DashboardPIC = () => {
 
   return (
     <div className="grid grid-cols-[250px_1fr] min-h-screen bg-gray-50">
-       {/* Sidebar */}
+      {/* Sidebar */}
       <aside className="bg-white border-r border-gray-200 p-5 space-y-6">
         {/* Dashboard Link */}
         <div 
@@ -211,7 +210,7 @@ const DashboardPIC = () => {
           }`}
           onClick={() => setCurrentView('dashboard')}
         >
-          🏠 Dashboard Overview
+          Dashboard Overview
         </div>
 
         {/* My Projects */}
@@ -237,7 +236,7 @@ const DashboardPIC = () => {
                 }`}
                 onClick={() => handleProjectClick('A.1')}
               >
-                <span className="mr-2">📌</span> Project A.1
+                Project A.1
               </div>
               <div 
                 className={`px-4 py-2 rounded-md text-sm cursor-pointer flex items-center ${
@@ -247,7 +246,7 @@ const DashboardPIC = () => {
                 }`}
                 onClick={() => handleProjectClick('B.1')}
               >
-                <span className="mr-2">📌</span> Project B.1
+                Project B.1
               </div>
             </div>
           )}
@@ -269,36 +268,36 @@ const DashboardPIC = () => {
           {openSections.rfcImplementation && (
             <div className="space-y-2 pl-2">
               <div 
-                className={`px-4 py-2 rounded-md text-sm cursor-pointer flex items-center ${
+                className={`px-4 py-2 rounded-md text-sm cursor-pointer ${
                   currentView === 'approved-rfcs' ? 'bg-blue-600 text-white' : 'hover:bg-blue-50'
                 }`}
                 onClick={() => handleRFCViewChange('approved-rfcs')}
               >
-                <span className="mr-2">✅</span> Approved RFCs
+                Approved RFCs
               </div>
               <div 
-                className={`px-4 py-2 rounded-md text-sm cursor-pointer flex items-center ${
+                className={`px-4 py-2 rounded-md text-sm cursor-pointer ${
                   currentView === 'sprint-creation' ? 'bg-blue-600 text-white' : 'hover:bg-blue-50'
                 }`}
                 onClick={() => handleRFCViewChange('sprint-creation')}
               >
-                <span className="mr-2">🚀</span> Sprint Creation
+                Sprint Creation
               </div>
               <div 
-                className={`px-4 py-2 rounded-md text-sm cursor-pointer flex items-center ${
+                className={`px-4 py-2 rounded-md text-sm cursor-pointer ${
                   currentView === 'rfc-progress' ? 'bg-blue-600 text-white' : 'hover:bg-blue-50'
                 }`}
                 onClick={() => handleRFCViewChange('rfc-progress')}
               >
-                <span className="mr-2">📊</span> RFC Progress
+                RFC Progress
               </div>
               <div 
-                className={`px-4 py-2 rounded-md text-sm cursor-pointer flex items-center ${
+                className={`px-4 py-2 rounded-md text-sm cursor-pointer ${
                   currentView === 'integration-tasks' ? 'bg-blue-600 text-white' : 'hover:bg-blue-50'
                 }`}
                 onClick={() => handleRFCViewChange('integration-tasks')}
               >
-                <span className="mr-2">🔗</span> Integration Tasks
+                Integration Tasks
               </div>
             </div>
           )}
@@ -319,14 +318,14 @@ const DashboardPIC = () => {
           </div>
           {openSections.teamManagement && (
             <div className="space-y-2 pl-2">
-              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer flex items-center">
-                <span className="mr-2">👥</span> Resource Assignment
+              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
+                Resource Assignment
               </div>
-              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer flex items-center">
-                <span className="mr-2">⏱</span> Time Tracking
+              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
+                Time Tracking
               </div>
-              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer flex items-center">
-                <span className="mr-2">📋</span> Task Management
+              <div className="px-4 py-2 rounded-md hover:bg-blue-50 text-sm cursor-pointer">
+                Task Management
               </div>
             </div>
           )}

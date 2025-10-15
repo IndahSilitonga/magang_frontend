@@ -1,12 +1,24 @@
 import React, { useState, useRef } from "react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import { 
+  Bell, 
+  CheckCircle2, 
+  Clock, 
+  Pause, 
+  FileText,
+  ChevronDown,
+  ChevronUp,
+  Paperclip,
+  FileX
+} from "lucide-react";
 
 import SuccessPopup from "./succes";
 import DigitalSignatureModal from "./digitalsignature";
 import CreateRFC from "./newRFC";
 import PendingTTE from "./PendingTTE";
 import SignedDocuments from "./SignDocument";
+import RFCDetailView from "./DetailRFC";
 
 interface TimelineStep {
   status: string;
@@ -36,13 +48,6 @@ interface RFC {
   attachments: string[];
   stakeholders: string[];
   lastUpdated: string;
-  comments: Array<{
-    id: string;
-    author: string;
-    message: string;
-    timestamp: string;
-    type: "comment" | "status_change" | "approval";
-  }>;
 }
 
 interface SubmittedRFCData {
@@ -71,7 +76,6 @@ interface Stats {
 type PageType = "dashboard" | "pending-tte" | "signed-docs" | "cert-mgmt" | "meetings" | "discussions";
 type MenuType = "submit" | "my-rfcs" | "pending-tte" | "signed-docs" | "cert-mgmt" | "meetings" | "discussions";
 
-// Modal untuk CreateRFC
 const CreateRFCModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
@@ -90,9 +94,8 @@ const CreateRFCModal: React.FC<{
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={handleOverlayClick}
     >
-      <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b bg-blue shadow-md">
+      <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b bg-blue shadow-md flex-shrink-0">
           <h2 className="text-lg font-semibold">Create New RFC</h2>
           <button
             onClick={onClose}
@@ -102,8 +105,7 @@ const CreateRFCModal: React.FC<{
           </button>
         </div>
 
-        {/* Isi form */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           <CreateRFC
             onBack={onClose}
             onSubmit={(data) => {
@@ -125,7 +127,6 @@ const DashboardClient: React.FC = () => {
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("date");
 
-  // Popup & Modal state
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [isCreateRFCModalOpen, setIsCreateRFCModalOpen] = useState(false);
@@ -230,29 +231,6 @@ const DashboardClient: React.FC = () => {
           assignedTo: "DevOps Team",
           estimatedDuration: "1 week"
         }
-      ],
-      comments: [
-        {
-          id: "1",
-          author: "Technical Committee",
-          message: "Technical specifications look solid. Recommend proceeding with implementation.",
-          timestamp: "2025-03-03 14:30",
-          type: "approval"
-        },
-        {
-          id: "2",
-          author: "Finance Department",
-          message: "Budget approved. Please ensure cost tracking throughout the project.",
-          timestamp: "2025-03-08 09:15",
-          type: "approval"
-        },
-        {
-          id: "3",
-          author: "Security Team Lead",
-          message: "This is critical for our Q2 compliance requirements. Priority should remain high.",
-          timestamp: "2025-03-08 16:45",
-          type: "comment"
-        }
       ]
     },
     {
@@ -318,22 +296,6 @@ const DashboardClient: React.FC = () => {
           assignedTo: "QA Team",
           estimatedDuration: "1 week"
         }
-      ],
-      comments: [
-        {
-          id: "1",
-          author: "Architecture Team",
-          message: "Recommend using Redis for rate limiting storage. More efficient than database approach.",
-          timestamp: "2025-03-12 11:20",
-          type: "comment"
-        },
-        {
-          id: "2",
-          author: "Platform Team Lead",
-          message: "Agreed on Redis approach. Will update technical specifications accordingly.",
-          timestamp: "2025-03-12 14:10",
-          type: "comment"
-        }
       ]
     },
     {
@@ -369,15 +331,6 @@ const DashboardClient: React.FC = () => {
           estimatedDuration: "2 weeks",
           notes: "Analyzing customer demand and competitor analysis"
         }
-      ],
-      comments: [
-        {
-          id: "1",
-          author: "Product Manager",
-          message: "Need to validate customer demand before proceeding with development.",
-          timestamp: "2025-02-28 10:30",
-          type: "comment"
-        }
       ]
     }
   ]);
@@ -385,11 +338,9 @@ const DashboardClient: React.FC = () => {
   const submitSectionRef = useRef<HTMLDivElement>(null);
   const myRfcSectionRef = useRef<HTMLDivElement>(null);
 
-  // Get filtered and sorted RFC list
   const getFilteredRFCs = () => {
     let filtered = rfcList;
 
-    // Filter by status
     if (filterStatus !== "all") {
       filtered = filtered.filter(rfc => {
         const completedSteps = rfc.timeline.filter(t => t.completed).length;
@@ -410,18 +361,15 @@ const DashboardClient: React.FC = () => {
       });
     }
 
-    // Filter by priority
     if (filterPriority !== "all") {
       filtered = filtered.filter(rfc => rfc.priority.includes(filterPriority));
     }
 
-    // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "date":
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
         case "priority":
-          const priorityOrder = { "High": 3, "Medium": 2, "Low": 1 };
           const aPriority = a.priority.includes("High") ? 3 : a.priority.includes("Medium") ? 2 : 1;
           const bPriority = b.priority.includes("High") ? 3 : b.priority.includes("Medium") ? 2 : 1;
           return bPriority - aPriority;
@@ -437,7 +385,6 @@ const DashboardClient: React.FC = () => {
     return filtered;
   };
 
-  // Get RFC status
   const getRFCStatus = (rfc: RFC) => {
     const completedSteps = rfc.timeline.filter(t => t.completed).length;
     const totalSteps = rfc.timeline.length;
@@ -449,21 +396,12 @@ const DashboardClient: React.FC = () => {
     return { label: "In Progress", color: "blue", progress };
   };
 
-  // Get priority color
   const getPriorityColor = (priority: string) => {
     if (priority.includes("High")) return "red";
     if (priority.includes("Medium")) return "yellow";
     return "green";
   };
 
-  // Get risk color
-  const getRiskColor = (risk: string) => {
-    if (risk === "High") return "red";
-    if (risk === "Medium") return "yellow";
-    return "green";
-  };
-
-  // Handlers
   const handleRFCSubmit = (rfcData: any): void => {
     const newRfc: RFC = {
       id: rfcData.id,
@@ -512,8 +450,7 @@ const DashboardClient: React.FC = () => {
           assignedTo: "Development Team",
           estimatedDuration: "1 week"
         }
-      ],
-      comments: []
+      ]
     };
 
     setRfcList((prev) => [newRfc, ...prev]);
@@ -529,12 +466,16 @@ const DashboardClient: React.FC = () => {
   const handleClosePopup = (): void => {
     setIsPopupOpen(false);
     setSubmittedRFC({ id: "", title: "", priority: "" });
+    // Auto-hide any expanded details when popup closes
+    setExpandedRFC(null);
   };
 
   const handleSubmitAnother = (): void => {
     setIsPopupOpen(false);
     setSubmittedRFC({ id: "", title: "", priority: "" });
     setIsCreateRFCModalOpen(true);
+    // Auto-hide any expanded details
+    setExpandedRFC(null);
   };
 
   const handleDigitalSignature = (rfc: RFC): void => {
@@ -564,12 +505,16 @@ const DashboardClient: React.FC = () => {
       )
     );
 
+    // Auto-hide details after signing
+    setExpandedRFC(null);
     setIsSignatureModalOpen(false);
     setSelectedRfcForSigning(null);
   };
 
   const handleSidebarClick = (menu: MenuType): void => {
     setActiveMenu(menu);
+    // Auto-hide any expanded details when navigating
+    setExpandedRFC(null);
 
     switch (menu) {
       case "submit":
@@ -607,11 +552,10 @@ const DashboardClient: React.FC = () => {
     ).length,
     pendingTTE: rfcList.filter((rfc) => rfc.needsSignature && !rfc.signed).length,
     completed: rfcList.filter((rfc) => rfc.timeline.every((t) => t.completed)).length,
-    rejected: 0, // You can add rejected RFCs logic
+    rejected: 0,
     highPriority: rfcList.filter((rfc) => rfc.priority.includes("High")).length,
   };
 
-  // Render pages
   const renderCurrentPage = () => {
     switch (currentPage) {
       case "pending-tte":
@@ -625,19 +569,14 @@ const DashboardClient: React.FC = () => {
 
   const renderDashboard = () => (
     <>
-      {/* Enhanced Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { number: stats.total.toString(), label: "Total RFCs", icon: "📊", color: "blue" },
-          { number: stats.inProgress.toString(), label: "In Progress", icon: "⚡", color: "yellow" },
-          { number: stats.pendingTTE.toString(), label: "Pending TTE", icon: "⏳", color: "amber" },
-          { number: stats.completed.toString(), label: "Completed", icon: "✅", color: "green" },
-          { number: stats.rejected.toString(), label: "Rejected", icon: "❌", color: "red" },
-          { number: stats.highPriority.toString(), label: "High Priority", icon: "🔥", color: "red" },
+          { number: stats.total.toString(), label: "Total RFCs", color: "blue" },
+          { number: stats.inProgress.toString(), label: "In Progress", color: "yellow" },
+          { number: stats.completed.toString(), label: "Completed", color: "green" },     
         ].map((stat, i) => (
           <Card key={i} className="hover:shadow-md transition-shadow">
             <CardContent className="text-center py-6">
-              <div className="text-2xl mb-2">{stat.icon}</div>
               <p className="text-2xl font-bold text-gray-900">{stat.number}</p>
               <p className="text-gray-500 text-sm">{stat.label}</p>
             </CardContent>
@@ -645,12 +584,11 @@ const DashboardClient: React.FC = () => {
         ))}
       </div>
 
-      {/* Enhanced My RFC Status */}
       <div ref={myRfcSectionRef} className="scroll-mt-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <span>📂 My RFC Status & Progress</span>
+              <span>My RFC Status & Progress</span>
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                 {getFilteredRFCs().length} of {stats.total}
               </span>
@@ -664,7 +602,6 @@ const DashboardClient: React.FC = () => {
             </Button>
           </CardHeader>
           
-          {/* Filters and Sorting */}
           <div className="px-6 pb-4 border-b">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
@@ -714,7 +651,7 @@ const DashboardClient: React.FC = () => {
           <CardContent className="space-y-6">
             {getFilteredRFCs().length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <div className="text-6xl mb-4">📄</div>
+                <FileX className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                 <p className="text-lg font-medium mb-2">No RFCs found</p>
                 <p>Try adjusting your filters or create a new RFC!</p>
               </div>
@@ -728,7 +665,6 @@ const DashboardClient: React.FC = () => {
                     key={rfc.id}
                     className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                   >
-                    {/* RFC Header */}
                     <div className="p-6 space-y-4">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -744,26 +680,6 @@ const DashboardClient: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">{rfc.description}</p>
-                          
-                          {/* Key Info Grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-500 block">Category</span>
-                              <span className="font-medium">{rfc.category}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500 block">Estimated Cost</span>
-                              <span className="font-medium">{rfc.estimatedCost}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500 block">Expected Completion</span>
-                              <span className="font-medium">{rfc.expectedCompletion}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500 block">Last Updated</span>
-                              <span className="font-medium">{rfc.lastUpdated}</span>
-                            </div>
-                          </div>
                         </div>
                         
                         <div className="text-right ml-4">
@@ -780,12 +696,11 @@ const DashboardClient: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Timeline Summary */}
                       <div className="flex flex-wrap gap-2 text-xs">
                         {rfc.timeline.slice(0, 5).map((step, stepIndex) => (
                           <span
                             key={stepIndex}
-                            className={`px-3 py-1 rounded-full font-medium ${
+                            className={`px-3 py-1 rounded-full font-medium flex items-center gap-1 ${
                               step.completed
                                 ? "bg-green-100 text-green-700 border border-green-200"
                                 : step.status === "TTE Required" && rfc.needsSignature
@@ -793,8 +708,14 @@ const DashboardClient: React.FC = () => {
                                 : "bg-gray-100 text-gray-600 border border-gray-200"
                             }`}
                           >
-                            {step.completed ? "✅" : step.status === "TTE Required" && rfc.needsSignature ? "⏳" : "⏸️"}{" "}
-                            {step.status} {step.date && `— ${step.date}`}
+                            {step.completed ? (
+                              <CheckCircle2 className="w-3 h-3" />
+                            ) : step.status === "TTE Required" && rfc.needsSignature ? (
+                              <Clock className="w-3 h-3" />
+                            ) : (
+                              <Pause className="w-3 h-3" />
+                            )}
+                            {step.status}
                           </span>
                         ))}
                         {rfc.timeline.length > 5 && (
@@ -804,267 +725,59 @@ const DashboardClient: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Action Buttons */}
                       <div className="flex items-center justify-between pt-4 border-t">
                         <div className="flex items-center gap-4">
                           <button
                             onClick={() => setExpandedRFC(isExpanded ? null : rfc.id)}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                           >
-                            {isExpanded ? "🔼 Hide Details" : "🔽 View Details"}
+                            {isExpanded ? (
+                              <>
+                                <ChevronUp className="w-4 h-4" />
+                                Hide Details
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="w-4 h-4" />
+                                View Details
+                              </>
+                            )}
                           </button>
                           
                           {rfc.attachments.length > 0 && (
                             <span className="text-gray-500 text-sm flex items-center gap-1">
-                              📎 {rfc.attachments.length} attachment{rfc.attachments.length > 1 ? 's' : ''}
-                            </span>
-                          )}
-                          
-                          {rfc.comments.length > 0 && (
-                            <span className="text-gray-500 text-sm flex items-center gap-1">
-                              💬 {rfc.comments.length} comment{rfc.comments.length > 1 ? 's' : ''}
+                              <Paperclip className="w-4 h-4" />
+                              {rfc.attachments.length} attachment{rfc.attachments.length > 1 ? 's' : ''}
                             </span>
                           )}
                         </div>
-
-                        {rfc.needsSignature && !rfc.signed && (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleDigitalSignature(rfc)}
-                            className="bg-amber-500 hover:bg-amber-600 text-white"
-                          >
-                            🔏 Sign Now
-                          </Button>
-                        )}
                       </div>
                     </div>
 
-                    {/* Expanded Details */}
                     {isExpanded && (
-                      <div className="border-t bg-gray-50">
-                        <div className="p-6 space-y-6">
-                          {/* Detailed Information */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">📋 Project Details</h4>
-                                <div className="space-y-2 text-sm">
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Requestor:</span>
-                                    <span className="font-medium">{rfc.requestor}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Department:</span>
-                                    <span className="font-medium">{rfc.department}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Technical Complexity:</span>
-                                    <span className={`font-medium px-2 py-1 rounded text-xs bg-${getRiskColor(rfc.technicalComplexity)}-100 text-${getRiskColor(rfc.technicalComplexity)}-800`}>
-                                      {rfc.technicalComplexity}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Risk Level:</span>
-                                    <span className={`font-medium px-2 py-1 rounded text-xs bg-${getRiskColor(rfc.riskLevel)}-100 text-${getRiskColor(rfc.riskLevel)}-800`}>
-                                      {rfc.riskLevel}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">💼 Business Justification</h4>
-                                <p className="text-sm text-gray-700 bg-white p-3 rounded border">
-                                  {rfc.businessJustification}
-                                </p>
-                              </div>
-
-                              {rfc.stakeholders.length > 0 && (
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-2">👥 Stakeholders</h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {rfc.stakeholders.map((stakeholder, idx) => (
-                                      <span
-                                        key={idx}
-                                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                                      >
-                                        {stakeholder}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="space-y-4">
-                              {/* Detailed Timeline */}
-                              <div>
-                                <h4 className="font-semibold text-gray-900 mb-3">🔄 Detailed Timeline</h4>
-                                <div className="space-y-3">
-                                  {rfc.timeline.map((step, stepIndex) => (
-                                    <div
-                                      key={stepIndex}
-                                      className={`flex items-start gap-3 p-3 rounded-lg border ${
-                                        step.completed
-                                          ? "bg-green-50 border-green-200"
-                                          : stepIndex === rfc.timeline.findIndex(s => !s.completed)
-                                          ? "bg-blue-50 border-blue-200"
-                                          : "bg-gray-50 border-gray-200"
-                                      }`}
-                                    >
-                                      <div
-                                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                          step.completed
-                                            ? "bg-green-500 text-white"
-                                            : stepIndex === rfc.timeline.findIndex(s => !s.completed)
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-gray-300 text-gray-600"
-                                        }`}
-                                      >
-                                        {step.completed ? "✓" : stepIndex + 1}
-                                      </div>
-                                      
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                          <h5 className="font-medium text-sm text-gray-900">
-                                            {step.status}
-                                          </h5>
-                                          {step.date && (
-                                            <span className="text-xs text-gray-500">{step.date}</span>
-                                          )}
-                                        </div>
-                                        
-                                        {step.assignedTo && (
-                                          <p className="text-xs text-gray-600 mb-1">
-                                            👤 Assigned to: <span className="font-medium">{step.assignedTo}</span>
-                                          </p>
-                                        )}
-                                        
-                                        {step.estimatedDuration && !step.completed && (
-                                          <p className="text-xs text-blue-600 mb-1">
-                                            ⏱️ Estimated: <span className="font-medium">{step.estimatedDuration}</span>
-                                          </p>
-                                        )}
-                                        
-                                        {step.notes && (
-                                          <p className="text-xs text-gray-700 italic">{step.notes}</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Attachments */}
-                              {rfc.attachments.length > 0 && (
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-2">📎 Attachments</h4>
-                                  <div className="space-y-2">
-                                    {rfc.attachments.map((attachment, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="flex items-center gap-2 p-2 bg-white rounded border hover:bg-gray-50 cursor-pointer"
-                                      >
-                                        <span className="text-blue-500">📄</span>
-                                        <span className="text-sm text-gray-700 flex-1">{attachment}</span>
-                                        <button className="text-blue-600 hover:text-blue-800 text-xs">
-                                          Download
-                                        </button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Comments Section */}
-                          {rfc.comments.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold text-gray-900 mb-3">💬 Comments & Updates</h4>
-                              <div className="space-y-3 max-h-64 overflow-y-auto">
-                                {rfc.comments.map((comment) => (
-                                  <div
-                                    key={comment.id}
-                                    className={`p-3 rounded-lg border-l-4 ${
-                                      comment.type === "approval"
-                                        ? "bg-green-50 border-l-green-400"
-                                        : comment.type === "status_change"
-                                        ? "bg-blue-50 border-l-blue-400"
-                                        : "bg-gray-50 border-l-gray-400"
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between mb-2">
-                                      <span className="font-medium text-sm text-gray-900">
-                                        {comment.author}
-                                      </span>
-                                      <div className="flex items-center gap-2">
-                                        {comment.type === "approval" && (
-                                          <span className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full">
-                                            ✅ Approved
-                                          </span>
-                                        )}
-                                        <span className="text-xs text-gray-500">
-                                          {comment.timestamp}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <p className="text-sm text-gray-700">{comment.message}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Action Buttons for Expanded View */}
-                          <div className="flex items-center justify-between pt-4 border-t">
-                            <div className="flex gap-3">
-                              <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                📧 Contact Assignee
-                              </button>
-                              <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                📝 Add Comment
-                              </button>
-                              <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                📊 Export Details
-                              </button>
-                            </div>
-
-                            {rfc.needsSignature && !rfc.signed && (
-                              <Button
-                                variant="primary"
-                                onClick={() => handleDigitalSignature(rfc)}
-                                className="bg-amber-500 hover:bg-amber-600 text-white"
-                              >
-                                🔏 Digital Signature Required
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <RFCDetailView 
+                        rfc={rfc} 
+                        onDigitalSignature={handleDigitalSignature}
+                      />
                     )}
 
-                    {/* Quick Action Alerts */}
                     {rfc.needsSignature && !rfc.signed && (
                       <div className="bg-amber-50 border-t border-amber-200 p-4">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-amber-800 mb-1">
-                              🔏 Digital Signature Required
-                            </p>
-                            <p className="text-xs text-amber-600">
-                              Your digital signature is required to proceed with implementation
-                            </p>
-                          </div>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleDigitalSignature(rfc)}
-                            className="bg-amber-500 hover:bg-amber-600 text-white"
-                          >
-                            Sign Now
-                          </Button>
+                          <p className="text-sm text-amber-700 flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span className="font-medium">Pending Digital Signature</span> - 
+                            This RFC requires approval from Direktur before implementation can proceed
+                          </p>
+                          {!isExpanded && (
+                            <Button
+                              variant="primary"
+                              onClick={() => handleDigitalSignature(rfc)}
+                              className="bg-amber-500 hover:bg-amber-600 text-white text-sm px-4 py-2"
+                            >
+                              Sign Now
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1072,21 +785,14 @@ const DashboardClient: React.FC = () => {
                     {rfc.signed && (
                       <div className="bg-green-50 border-t border-green-200 p-4">
                         <p className="text-sm text-green-700 flex items-center gap-2">
-                          ✅ <span className="font-medium">Document signed successfully</span> - 
+                          <CheckCircle2 className="w-5 h-5" />
+                          <span className="font-medium">Document signed successfully</span> - 
                           Implementation can now proceed
                         </p>
                       </div>
                     )}
-
-                    {rfc.id === "RFC-2025-124" && !rfc.signed && (
-                      <div className="bg-blue-50 border-t border-blue-200 p-3">
-                        <p className="text-sm text-blue-700 flex items-center gap-2">
-                          📅 <span className="font-medium">Upcoming:</span> Meeting scheduled for March 15 with Direktur
-                        </p>
-                      </div>
-                    )}
                   </div>
-                )
+                );
               })
             )}
           </CardContent>
@@ -1097,7 +803,6 @@ const DashboardClient: React.FC = () => {
 
   return (
     <div className="grid grid-cols-[250px_1fr] min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <aside className="bg-white border-r border-gray-200 p-5 space-y-6">
         <div>
           <h3 className="text-xs font-semibold uppercase text-gray-500 mb-2">RFC Management</h3>
@@ -1108,7 +813,7 @@ const DashboardClient: React.FC = () => {
               }`}
               onClick={() => handleSidebarClick("submit")}
             >
-              📝 Dashboard
+              Dashboard
             </div>
             <div
               className={`px-4 py-2 rounded-md text-sm cursor-pointer transition-colors ${
@@ -1116,7 +821,7 @@ const DashboardClient: React.FC = () => {
               }`}
               onClick={() => handleSidebarClick("pending-tte")}
             >
-              ⏳ Pending TTE ({stats.pendingTTE})
+              Pending TTE 
             </div>
             <div
               className={`px-4 py-2 rounded-md text-sm cursor-pointer transition-colors ${
@@ -1124,22 +829,23 @@ const DashboardClient: React.FC = () => {
               }`}
               onClick={() => handleSidebarClick("signed-docs")}
             >
-              ✅ Signed Documents
+              Signed Documents
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="p-8 space-y-6">
         <div className="flex justify-between items-center pb-5 border-b border-gray-200">
           <h1 className="text-xl font-bold text-gray-900">RFC Management Dashboard</h1>
           <div className="flex items-center gap-4">
             <div className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-md transition-colors">
-              <span className="text-xl">🔔</span>
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {stats.pendingTTE}
-              </span>
+              <Bell className="w-5 h-5 text-gray-600" />
+              {stats.pendingTTE > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {stats.pendingTTE}
+                </span>
+              )}
             </div>
             <span className="bg-amber-100 border border-amber-400 text-amber-800 px-4 py-1 rounded-md text-sm font-medium">
               Role: Client
@@ -1150,7 +856,6 @@ const DashboardClient: React.FC = () => {
         {renderCurrentPage()}
       </main>
 
-      {/* Popups & Modals */}
       <SuccessPopup
         isOpen={isPopupOpen}
         rfcId={submittedRFC.id}
